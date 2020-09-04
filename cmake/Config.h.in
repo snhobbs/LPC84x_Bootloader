@@ -1,0 +1,12 @@
+/*
+ * Copyright 2020 Electrooptical Innovations
+ * Auto generated header file
+ * Generated @build_timestamp@
+ * */
+#pragma once
+//  CMake configuration options
+#define __VERSION_MAJOR__ @VERSION_MAJOR@
+#define __VERSION_MINOR__ @VERSION_MINOR@
+#define __VERSION_SUB__ @VERSION_SUB@
+#define __FIRMWARE_VERSION__ "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_SUB@"
+#define __BUILD_TYPE__ "@CMAKE_BUILD_TYPE@"

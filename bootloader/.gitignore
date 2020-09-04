@@ -1,0 +1,17 @@
+/Release/
+source/Config.h
+Debug/
+tests/*.axf
+tests/*.metadata
+MsdsTests
+*.launch
+IOPins.cpp
+IOPins.h
+Board.h
+SystemManager.h
+main.cpp
+TaskRates.h
+ScriptControl.h
+source/*.md
+source/*.csv
+.metadata

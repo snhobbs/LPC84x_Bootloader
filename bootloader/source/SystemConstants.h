@@ -1,0 +1,25 @@
+/*
+ * Copyright 2020 ElectroOptical Innovations, LLC
+ * SystemConstants.h
+ *
+ */
+
+#pragma once
+#ifndef SYSTEMCONSTANTS_H_
+#define SYSTEMCONSTANTS_H_
+
+#include "TaskRates.h"
+#include <Calculators/CalculatorBase.h>
+#include <Chip.h>
+#include <cstdint>
+namespace SystemConstants {
+const uint32_t kWatchDogClock = 10000;
+const constexpr uint32_t kWatchDogTimeout = 2 * kWatchDogClock;
+const constexpr uint32_t kSysTickFrequency = 1000;
+
+const Chip::MainClockSpeeds kMainClockFrequency = Chip::MainClockSpeeds::k30M;
+
+const constexpr uint8_t kISPCode = 0; //FIXME needs different firmare unlock method
+}  // namespace SystemConstants
+
+#endif /* SYSTEMCONSTANTS_H_ */
