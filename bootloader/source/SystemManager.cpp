@@ -16,10 +16,8 @@ void SystemManager::RunBootup(void) {
   if (system_mediator_.BootupFinished()) {
     state_.set(SystemManager::State::kOperating);
     assert(state_.get() == SystemManager::State::kOperating);
-  } else if (system_mediator_.IsFault()) {
-    state_.set(State::kFault);
   } else {
-    system_mediator_.Run(GetSystemTime());
+    system_mediator_.Run();
   }
 }
 
@@ -34,4 +32,8 @@ void SystemManager::HandleFault(void) {
   //  state_.set(State::kOperating);  //  FIXME no fault handling here
 }
 
-void SystemManager::RunOperating(void) {}
+void SystemManager::RunOperating(void) {
+  GetSystemMediator().RunSerial();
+  Watchdog::Kick();
+  GetSystemMediator().HouseKeeping();
+}

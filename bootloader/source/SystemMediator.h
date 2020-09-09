@@ -49,10 +49,7 @@ class SystemMediator {
 
  public:
   bool BootupFinished(void) const { return state_.get() == State::Operating; }
-  bool IsFault(void) const { return state_.get() == State::Fault; }
-
-  void Reset(void) {
-  }
+  void Reset(void) {}
 
   void Setup(void) {
 #ifndef DEBUG
@@ -62,23 +59,19 @@ class SystemMediator {
     }
 #endif
     hardware_.Setup();
-    const bool pin_states_sane = hardware_.get_pins_sane_at_startup();
-    if (!pin_states_sane) {
-      assert(pin_states_sane);
-    }
     Reset();
     hardware_.GetSerialNumber(serial_number_.data(), serial_number_.size());
     hardware_.EnableInterrupts();
   }
 
-  void Run(uint32_t tick) {
+  void Run(void) {
     switch (state_.get()) {
     case (State::Operating):
       break;
 
     case (State::Initial):
       Setup();
-      state_.set(State::Operating, tick);
+      state_.set(State::Operating, 0);
       break;
 
     case (State::Fault):
@@ -86,14 +79,8 @@ class SystemMediator {
     }
   }
 
-  int32_t UpdateFaultState(void);
-
   // Tasks
   int32_t HouseKeeping(void) {
-    // fixme update algorithms here?
-#ifndef NDEBUG
-    blinky(loops_++);
-#endif
     return 0;
   }
 

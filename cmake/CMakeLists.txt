@@ -34,9 +34,9 @@ target_link_options(
   ${TargetName}
   PUBLIC
   $<$<CONFIG:RELEASE>:-s> # strip all symbols
-  #-flto                          # Link time optimizations
-  #-O3                            # Link time optimization level
-  #-ffat-lto-objects              # Link time optimization in object files
+  $<$<CONFIG:RELEASE>:-Os> #LTO
+  -flto                          # Link time optimizations
+  -ffat-lto-objects              # Link time optimization in object files
 )
 
 target_compile_options(
@@ -45,6 +45,10 @@ target_compile_options(
     $<$<CONFIG:Release>:-Os>
     $<$<CONFIG:Debug>:-Og>
     $<$<CONFIG:Debug>:-g3>
+
+    -flto                          # Link time optimizations
+    -ffat-lto-objects              # Link time optimization in object files
+
     -Wfatal-errors
     -Wall
     -Wextra
@@ -71,15 +75,6 @@ target_compile_options(
     $<$<COMPILE_LANGUAGE:CXX>:-Wold-style-cast>
     -Wshadow
 )
-
-option(MODBUS OFF)
-if (${MODBUS})
-target_compile_definitions(
-    ${TargetName}
-    PUBLIC
-    -DMODBUS
-)
-endif()
 
 set(source_excludes mtb.c semihost_hardfault.c uart.cpp)
 set(static_analysis_excludes ${source_excludes})
@@ -130,7 +125,7 @@ function(PinGenerator directory)
 endfunction()
 
 function(TaskGenerator directory args)
-  set(files "main.cpp;TaskRates.h;SystemManager.h")
+  set(files "main.cpp")
   set(generated_files ${files})
   list(TRANSFORM generated_files PREPEND "${directory}/")
   message("Generated Files appended" ${generated_files})

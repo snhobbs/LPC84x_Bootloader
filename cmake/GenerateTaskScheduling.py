@@ -27,20 +27,6 @@ if __name__ == "__main__":
 
     template_directory = "/home/simon/software/LPC84x/generators/templates"
     env = Environment(loader=FileSystemLoader(template_directory))
-    template_name = "SystemManager.h.j2"
-    fname = template_name.strip(".j2")
-    template = env.get_template(template_name)
-    rendering = template.render(tasks=tasks, includes=includes, handlers=handlers, timestamp=datetime.datetime.now())
-    with open(fname, 'w') as f:
-        f.write(rendering)
-
-
-    template_name = "TaskRates.h.j2"
-    fname = template_name.strip(".j2")
-    template = env.get_template(template_name)
-    rendering = template.render(tasks=tasks, timestamp=datetime.datetime.now())
-    with open(fname, 'w') as f:
-        f.write(rendering)
 
     template_name = "main.cpp.j2"
     fname = template_name.strip(".j2")
