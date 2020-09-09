@@ -9,7 +9,7 @@
 #ifndef SYSTEMMEDIATOR_H_
 #define SYSTEMMEDIATOR_H_
 
-#include "shell/shell.h"
+#include "Bootloader.h"
 #include "Board.h"
 #include "Config.h"
 #include "HardwareLibrarian.h"
@@ -20,11 +20,6 @@
 #include <IAP.h>
 #include <array>
 #include <cstdint>
-
-void SetShellUart(UartControllerType* uart);
-UartControllerType* GetShellUart(void);
-int console_putc(char c);
-char console_getc(void);
 
 class SystemMediator {
   /*
@@ -61,13 +56,6 @@ class SystemMediator {
     SetupShell();
   }
 
-  void SetupShell(void) {
-    SetShellUart(&uart_);
-    sShellImpl shell_impl = {
-      .send_char = console_putc,
-    };
-    shell_boot(&shell_impl);
-  }
   void Run(void) {
     watchdog_.Kick();
     switch (state_.get()) {
@@ -78,6 +66,9 @@ class SystemMediator {
     case (State::Initial):
       Setup();
       state_.set(State::Operating, 0);
+      if (ImageIsValid()) {
+        Go();
+      }
       break;
 
     case (State::Fault):
@@ -91,8 +82,8 @@ class SystemMediator {
 
   int32_t RunSerial(void) {
     while (!uart_.TxEmpty()) {
-      char c = console_getc();
-      shell_receive_char(c);
+      uint8_t ch = uart_.read();
+      shell_receive_char(static_cast<uint8_t>(ch));
     }  
     return 0;
   }
