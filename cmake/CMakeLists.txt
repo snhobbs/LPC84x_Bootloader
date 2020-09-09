@@ -106,7 +106,7 @@ find_package(EmbeddedCMake 1.0.1 REQUIRED)
 include(${EmbeddedCMake_DIR}/source/ProjectBase.cmake)
 
 function(PinGenerator directory)
-  set(files "IOPins.h;IOPins.cpp;Board.h")
+  set(files "IOPins.h;IOPins.cpp")
   set(generated_files ${files})
   list(TRANSFORM generated_files PREPEND ${directory}/)
   message(STATUS ${generated_files})

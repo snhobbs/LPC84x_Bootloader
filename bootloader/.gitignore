@@ -7,7 +7,6 @@ MsdsTests
 *.launch
 IOPins.cpp
 IOPins.h
-Board.h
 SystemManager.h
 main.cpp
 TaskRates.h

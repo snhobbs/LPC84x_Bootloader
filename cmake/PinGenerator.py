@@ -15,7 +15,7 @@ if __name__ == "__main__":
     ]
 
     env = Environment(loader=FileSystemLoader(template_dir + "/templates"))
-    templates = ["IOPins.h.j2", "IOPins.cpp.j2", "Board.h.j2"]
+    templates = ["IOPins.h.j2", "IOPins.cpp.j2"]
     for tp in templates:
         fname = tp.strip(".j2")
         template = env.get_template(tp)
