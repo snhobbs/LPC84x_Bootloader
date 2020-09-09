@@ -14,10 +14,10 @@ message(STATUS "${PROJECT_NAME}")
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR})
 set(ProjectDirectory ${CMAKE_SOURCE_DIR}/../bootloader)
-set(ProjectSourceDirectories ${ProjectDirectory}/source)
-set(ProjectIncludeDirectories ${ProjectSourceDirectories})
+set(ProjectSourceDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/src ${ProjectDirectory}/Bootloader/nxpisp/source)
+set(ProjectIncludeDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/include ${ProjectDirectory}/Bootloader/nxpisp/include)
 string(TIMESTAMP build_timestamp UTC)
-configure_file(${CMAKE_SOURCE_DIR}/Config.h.in ${ProjectSourceDirectories}/Config.h) # add header where version is passed to code
+configure_file(${CMAKE_SOURCE_DIR}/Config.h.in ${ProjectDirectory}/source/Config.h) # add header where version is passed to code
 
 #------------------------------------------------------------------------------------------
 # Project Settings
@@ -143,5 +143,5 @@ function(TaskGenerator directory args)
   )
 endfunction()
 
-TaskGenerator(${ProjectSourceDirectories} "")
-PinGenerator(${ProjectSourceDirectories})
+TaskGenerator(${ProjectDirectory}/source "")
+PinGenerator(${ProjectDirectory}/source)

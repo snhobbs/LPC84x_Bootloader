@@ -5,11 +5,15 @@
  */
 
 #pragma once
+
+
 #include "IOPins.h"
 #include <Chip.h>
 #include <array>
 #include <cassert>
 
+#pragma GCC optimize("Os")
+#pragma GCC push_options
 class Board {
   const Chip::MainClockSpeeds main_clock_frequency_;
   Chip chip_{};
@@ -50,3 +54,5 @@ class Board {
   Board(const Board &) = delete;
   Board &operator=(const Board &) = delete;
 };
+
+#pragma GCC pop_options

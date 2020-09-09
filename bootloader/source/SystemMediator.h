@@ -9,23 +9,22 @@
 #ifndef SYSTEMMEDIATOR_H_
 #define SYSTEMMEDIATOR_H_
 
-#pragma GCC optimize("Os")
-#pragma GCC push_options
+#include "shell/shell.h"
 #include "Board.h"
 #include "Config.h"
 #include "HardwareLibrarian.h"
 
-#pragma GCC pop_options
-
-#pragma GCC optimize("Og")
-#pragma GCC push_options
 #include <Utilities/TypeConversion.h>
 #include <Utilities/CommonTypes.h>
 #include <Watchdog.h>
 #include <IAP.h>
 #include <array>
 #include <cstdint>
-#pragma GCC pop_options
+
+void SetShellUart(UartControllerType* uart);
+UartControllerType* GetShellUart(void);
+int console_putc(char c);
+char console_getc(void);
 
 class SystemMediator {
   /*
@@ -43,7 +42,7 @@ class SystemMediator {
   Watchdog watchdog_;
   HardwareLibrarian hardware_{};
 
-  //ScriptControl script_control_{hardware_.GetSerialControlUart()};
+  UartControllerType& uart_{hardware_.GetSerialControlUart()};
   std::array<char, (Chip::GetSerialNumberLength())> serial_number_;
   Utilities::StateController<State> state_{};
 
@@ -62,8 +61,16 @@ class SystemMediator {
     Reset();
     hardware_.GetSerialNumber(serial_number_.data(), serial_number_.size());
     hardware_.EnableInterrupts();
+    SetupShell();
   }
 
+  void SetupShell(void) {
+    SetShellUart(&uart_);
+    sShellImpl shell_impl = {
+      .send_char = console_putc,
+    };
+    shell_boot(&shell_impl);
+  }
   void Run(void) {
     switch (state_.get()) {
     case (State::Operating):
@@ -85,7 +92,11 @@ class SystemMediator {
   }
 
   int32_t RunSerial(void) {
-    //script_control_.ProcessSerialBuffer();
+    while (!uart_.TxEmpty()) {
+      char c;
+      c = console_getc();
+      shell_receive_char(c);
+    }  
     return 0;
   }
 
