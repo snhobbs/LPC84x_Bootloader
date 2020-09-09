@@ -18,7 +18,6 @@ class Board {
   const Chip::MainClockSpeeds main_clock_frequency_;
   Chip chip_{};
   PinSetter pinsetter_;
-  std::array<char, (Chip::GetSerialNumberLength())> serial_number_{};
 
   void PinInit(void) const {
     pinsetter_.OpenPinChange();
@@ -28,17 +27,12 @@ class Board {
   }
 
  public:
-  void GetSerialNumber(char * const data, const std::size_t array_size) {
-    for (std::size_t i = 0; i < array_size; i++) {
-      data[i] = serial_number_[i];
-    }
-  }
 
   void Setup(void) {
     //  chip_.Setup(main_clock_frequency_);
     //  pinsetter_.InitializeGpio();
     PinInit();
-    chip_.ReadSerialNumber(serial_number_.data(), serial_number_.size());
+    //  chip_.ReadSerialNumber(serial_number_.data(), serial_number_.size());
   }
 
   template<typename T>

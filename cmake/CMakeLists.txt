@@ -33,7 +33,7 @@ set_property(TARGET ${TargetName} PROPERTY CMAKE_C_EXTENSIONS OFF)
 target_link_options(
   ${TargetName}
   PUBLIC
-  $<$<CONFIG:RELEASE>:-s> # strip all symbols
+  #$<$<CONFIG:RELEASE>:-s> # strip all symbols
   $<$<CONFIG:RELEASE>:-Os> #LTO
   -flto                          # Link time optimizations
   -ffat-lto-objects              # Link time optimization in object files

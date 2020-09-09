@@ -30,10 +30,6 @@ class HardwareLibrarian {
   }
 
  public:
-  void GetSerialNumber(char* data, uint32_t array_size) {
-    return board_.GetSerialNumber(data, array_size);
-  }
-
   void EnableInterrupts(void) {
     // enable uart interrupts
     uart_.EnableInterrupt(UsartDriver::InterruptFlag::kRxReady);

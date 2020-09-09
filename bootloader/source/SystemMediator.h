@@ -43,7 +43,6 @@ class SystemMediator {
   HardwareLibrarian hardware_{};
 
   UartControllerType& uart_{hardware_.GetSerialControlUart()};
-  std::array<char, (Chip::GetSerialNumberLength())> serial_number_;
   Utilities::StateController<State> state_{};
 
  public:
@@ -59,7 +58,6 @@ class SystemMediator {
 #endif
     hardware_.Setup();
     Reset();
-    hardware_.GetSerialNumber(serial_number_.data(), serial_number_.size());
     hardware_.EnableInterrupts();
     SetupShell();
   }
@@ -93,8 +91,7 @@ class SystemMediator {
 
   int32_t RunSerial(void) {
     while (!uart_.TxEmpty()) {
-      char c;
-      c = console_getc();
+      char c = console_getc();
       shell_receive_char(c);
     }  
     return 0;
