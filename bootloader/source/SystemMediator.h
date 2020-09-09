@@ -46,7 +46,6 @@ class SystemMediator {
   Utilities::StateController<State> state_{};
 
  public:
-  bool BootupFinished(void) const { return state_.get() == State::Operating; }
   void Reset(void) {}
 
   void Setup(void) {
@@ -70,8 +69,10 @@ class SystemMediator {
     shell_boot(&shell_impl);
   }
   void Run(void) {
+    watchdog_.Kick();
     switch (state_.get()) {
     case (State::Operating):
+      RunSerial();
       break;
 
     case (State::Initial):
@@ -84,7 +85,6 @@ class SystemMediator {
     }
   }
 
-  // Tasks
   int32_t HouseKeeping(void) {
     return 0;
   }
@@ -98,10 +98,6 @@ class SystemMediator {
   }
 
   void USART0_IRQHandler(void) {
-    ControllerUSARTHandler();
-  }
-
-  void ControllerUSARTHandler(void) {
     hardware_.GetSerialControlUart().RxTxInterruptDriverIO();
   }
 

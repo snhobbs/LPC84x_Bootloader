@@ -38,7 +38,9 @@ uint32_t ReadBootCodeVersion(uint32_t* major, uint32_t* minor) {
   return ret;
 }
 
-uint32_t MemoryLocationsEqual(const uint32_t address1, const uint32_t address2, const uint32_t length) { return Isp::CMD_SUCCESS; }
+uint32_t MemoryLocationsEqual(const uint32_t address1, const uint32_t address2, const uint32_t length) {
+  return Isp::CMD_SUCCESS;
+}
 
 uint32_t ReadUID(std::array<uint32_t, IspController::kSerialNumberWordCount>* uuid) {
   return IspController::ReadSerialNumber(uuid);
