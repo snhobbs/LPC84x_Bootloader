@@ -143,5 +143,5 @@ function(TaskGenerator directory args)
   )
 endfunction()
 
-TaskGenerator(${ProjectDirectory}/source "")
+#TaskGenerator(${ProjectDirectory}/source "")
 PinGenerator(${ProjectDirectory}/source)

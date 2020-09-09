@@ -1,5 +1,8 @@
 #include "nxpisp/isp.h"
 #include "IAP.h"
+#include "Crc.h"
+
+//  FIXME disable interrupts with each of the read/writes to flash
 namespace Isp {
 uint32_t unlock(void) { return Isp::CMD_SUCCESS; }
 uint32_t SetBaudRate(const uint32_t baudrate, const uint32_t stop_bits) { return Isp::CMD_SUCCESS; }
@@ -17,6 +20,7 @@ uint32_t CopyRAMToFlash(const uint32_t flash_address, const uint32_t ram_address
 
 /* Only allow address to be start of bootloader */
 uint32_t Go(const uint32_t address, const char mode) {
+  NVIC_SystemReset();  //  never returns
   return Isp::CMD_SUCCESS;
 }
 

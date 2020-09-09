@@ -67,7 +67,7 @@ class SystemMediator {
       Setup();
       state_.set(State::Operating, 0);
       if (ImageIsValid()) {
-        Go();
+        ExecuteImage();
       }
       break;
 

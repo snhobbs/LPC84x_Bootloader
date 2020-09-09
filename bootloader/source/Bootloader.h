@@ -6,10 +6,9 @@
 //
 void SetShellUart(UartControllerType* uart);
 UartControllerType* GetShellUart(void);
-int console_putc(char c);
-char console_getc(void);
+//  int console_putc(char c);
+//  char console_getc(void);
 void SetupShell(void);
-void Go(void);
+void ExecuteImage(void);
 bool ImageIsValid(void);
-
 
