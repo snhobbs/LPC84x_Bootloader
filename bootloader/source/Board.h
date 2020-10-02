@@ -29,7 +29,7 @@ class Board {
  public:
 
   void Setup(void) {
-    //  chip_.Setup(main_clock_frequency_);
+    chip_.Setup(main_clock_frequency_);
     //  pinsetter_.InitializeGpio();
     PinInit();
     //  chip_.ReadSerialNumber(serial_number_.data(), serial_number_.size());

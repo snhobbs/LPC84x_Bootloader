@@ -3,7 +3,7 @@
 #include "nxpisp/isp.h"
 #include <Crc.h>
 #include <cstdint>
-#include <HardwareLibrarian.h>
+#include "HardwareLibrarian.h"
 /*
  * Global to connect the shell send character function
  * */
@@ -31,6 +31,7 @@ UartControllerType* GetShellUart(void) {
 
 static int console_putc(char c) {
   shell_uart->write(static_cast<uint8_t>(c));
+  return 0;
 }
 
 #if 0
@@ -41,7 +42,7 @@ char console_getc(void) {
 #endif
 
 void SetupShell(void) {
-  SetShellUart(shell_uart);
+  assert(GetShellUart() != nullptr);
   sShellImpl shell_impl = {
     .send_char = console_putc,
   };

@@ -4,6 +4,14 @@
 
 //  FIXME disable interrupts with each of the read/writes to flash
 namespace Isp {
+void OpenFlashInteraction(void) {
+  __disable_irq();
+}
+
+void CloseFlashInteraction(void) {
+  __enable_irq();
+}
+
 uint32_t unlock(void) { return Isp::CMD_SUCCESS; }
 uint32_t SetBaudRate(const uint32_t baudrate, const uint32_t stop_bits) { return Isp::CMD_SUCCESS; }
 uint32_t WriteToRam(const uint32_t start, const uint32_t length) { return Isp::CMD_SUCCESS; }

@@ -53,6 +53,7 @@ class SystemMediator {
     hardware_.Setup();
     Reset();
     hardware_.EnableInterrupts();
+    SetShellUart(&uart_);
     SetupShell();
   }
 
@@ -64,11 +65,12 @@ class SystemMediator {
       break;
 
     case (State::Initial):
-      Setup();
       state_.set(State::Operating, 0);
+#if 0
       if (ImageIsValid()) {
         ExecuteImage();
       }
+#endif
       break;
 
     case (State::Fault):
@@ -81,9 +83,9 @@ class SystemMediator {
   }
 
   int32_t RunSerial(void) {
-    while (!uart_.TxEmpty()) {
-      uint8_t ch = uart_.read();
-      shell_receive_char(static_cast<uint8_t>(ch));
+    while (!uart_.RxEmpty()) {
+      const uint8_t ch = uart_.read();
+      shell_receive_char(static_cast<char>(ch));
     }  
     return 0;
   }
