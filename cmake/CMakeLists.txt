@@ -14,8 +14,10 @@ message(STATUS "${PROJECT_NAME}")
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR})
 set(ProjectDirectory ${CMAKE_SOURCE_DIR}/../bootloader)
-set(ProjectSourceDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/src ${ProjectDirectory}/Bootloader/nxpisp/source)
-set(ProjectIncludeDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/include ${ProjectDirectory}/Bootloader/nxpisp/include)
+set(ProjectSourceDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/src)
+set(ProjectIncludeDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/include)
+#set(ProjectSourceDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/src ${ProjectDirectory}/Bootloader/nxpisp/source)
+#set(ProjectIncludeDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/include ${ProjectDirectory}/Bootloader/nxpisp/include)
 string(TIMESTAMP build_timestamp UTC)
 configure_file(${CMAKE_SOURCE_DIR}/Config.h.in ${ProjectDirectory}/source/Config.h) # add header where version is passed to code
 
@@ -33,7 +35,7 @@ set_property(TARGET ${TargetName} PROPERTY CMAKE_C_EXTENSIONS OFF)
 target_link_options(
   ${TargetName}
   PUBLIC
-  #$<$<CONFIG:RELEASE>:-s> # strip all symbols
+  $<$<CONFIG:RELEASE>:-s> # strip all symbols
   $<$<CONFIG:RELEASE>:-Os> #LTO
   -flto                          # Link time optimizations
   -ffat-lto-objects              # Link time optimization in object files

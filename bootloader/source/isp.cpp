@@ -1,7 +1,9 @@
-#include "nxpisp/isp.h"
+#include "isp.h"
 #include "IAP.h"
 #include "Crc.h"
-
+#include <shell/shell.h>
+#include "SystemConstants.h"
+#include <array>
 //  FIXME disable interrupts with each of the read/writes to flash
 namespace Isp {
 void OpenFlashInteraction(void) {

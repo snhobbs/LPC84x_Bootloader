@@ -1,6 +1,6 @@
 #include "Bootloader.h"
 #include "shell/shell.h"
-#include "nxpisp/isp.h"
+#include "isp.h"
 #include <Crc.h>
 #include <cstdint>
 #include "HardwareLibrarian.h"
