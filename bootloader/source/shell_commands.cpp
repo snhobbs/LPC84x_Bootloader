@@ -1,15 +1,17 @@
-#include "nxpisp/isp_error_codes.h"
+#include "isp_error_codes.h"
 #include "shell/shell.h"
-#include "nxpisp/isp.h"
+#include "isp.h"
 
 #include <limits>
 #include <cstdint>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include "SystemConstants.h"
 
+#ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
-
+#endif
 namespace Shell {
 inline void RaiseError(const char* str, const uint32_t code) {
   prv_echo_str("> FAIL,");
@@ -108,7 +110,7 @@ int cmd_write_to_ram(int argc, char *argv[]) {
   const uint32_t response_code = Isp::WriteToRam(start, length);
   SendResponseCode(response_code);
   //  FIXME accept data being streamed in
-  std::array<uint8_t, kMaximumReadWriteLength> buffer;
+  std::array<uint8_t, Shell::kMaximumReadWriteLength> buffer{'\0'};
   shell_put_line("OK");
   return 0;
 }
@@ -120,7 +122,7 @@ int cmd_read_memory(int argc, char *argv[]) {
 
   const uint32_t start = std::atol(argv[1]);
   const uint32_t length = std::atol(argv[2]);
-  std::array<uint8_t, kMaximumReadWriteLength> buffer;
+  std::array<uint8_t, Shell::kMaximumReadWriteLength> buffer;
   const uint32_t response_code = Isp::ReadMemory(start, length, buffer);
   SendResponseCode(response_code);
   
