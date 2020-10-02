@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>LPC845_Bootloader</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
+			<triggers>clean,full,incremental,</triggers>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.cdt.managedbuilder.core.ScannerConfigBuilder</name>
+			<triggers>full,incremental,</triggers>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
+		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>drivers</name>
+			<type>2</type>
+			<location>/home/simon/software/LPC84x/Chip/VendorSdks/SDK_2.7.0_LPC845/devices/LPC845/drivers</location>
+		</link>
+		<link>
+			<name>shell</name>
+			<type>2</type>
+			<location>/home/simon/software/LPC84x_Bootloader/bootloader/firmware-shell/shell</location>
+		</link>
+		<link>
+			<name>source</name>
+			<type>2</type>
+			<location>/home/simon/software/LPC84x_Bootloader/bootloader/source</location>
+		</link>
+	</linkedResources>
+</projectDescription>
