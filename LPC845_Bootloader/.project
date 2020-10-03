@@ -26,6 +26,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Chip</name>
+			<type>2</type>
+			<location>/home/simon/software/LPC84x/Chip</location>
+		</link>
+		<link>
 			<name>drivers</name>
 			<type>2</type>
 			<location>/home/simon/software/LPC84x/Chip/VendorSdks/SDK_2.7.0_LPC845/devices/LPC845/drivers</location>
