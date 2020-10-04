@@ -15,7 +15,6 @@
 #pragma GCC optimize("Os")
 #pragma GCC push_options
 class Board {
-  const Chip::MainClockSpeeds main_clock_frequency_;
   Chip chip_{};
   PinSetter pinsetter_;
 
@@ -29,10 +28,9 @@ class Board {
  public:
 
   void Setup(void) {
-    chip_.Setup(main_clock_frequency_);
+    chip_.DefaultSetup();
     //  pinsetter_.InitializeGpio();
     PinInit();
-    //  chip_.ReadSerialNumber(serial_number_.data(), serial_number_.size());
   }
 
   template<typename T>
@@ -41,8 +39,8 @@ class Board {
     pin.Setup();
     pinsetter_.ClosePinChange();
   }
-  explicit Board(Chip::MainClockSpeeds main_clock_frequency)
-      : main_clock_frequency_{main_clock_frequency} {}
+
+  explicit Board(Chip::MainClockSpeeds main_clock_frequency) {}
 
  private:
   Board(const Board &) = delete;
