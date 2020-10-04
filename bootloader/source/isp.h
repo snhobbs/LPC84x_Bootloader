@@ -21,4 +21,21 @@ uint32_t ReadUID(std::array<uint32_t, 4>* uuid);
 uint32_t ReadCRC(const uint32_t start, const uint32_t length, uint32_t* crc);
 
 uint32_t ReadFlashSig(const uint32_t start, const uint32_t end, const uint32_t wait_states, const uint32_t mode, uint32_t* signature);
+
+uint32_t TranslateStatus(status_t status) {
+  return status;
+}
+
+constexpr inline bool SectorLegal(uint32_t address) {
+  return true;
+}
+
+constexpr inline bool PageLegal(uint32_t address) {
+  return true;
+}
+
+constexpr inline bool AddressLegal(uint32_t address) {
+  return true;
+}
+
 }
