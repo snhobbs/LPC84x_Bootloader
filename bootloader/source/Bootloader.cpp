@@ -1,15 +1,15 @@
 #include "Bootloader.h"
-#include "shell/shell.h"
 #include "isp.h"
 #include <Crc.h>
 #include <cstdint>
-#include "HardwareLibrarian.h"
-/*
- * Global to connect the shell send character function
- * */
+
 static const constexpr uint32_t kSectorSize = 1024;
 static const constexpr uint32_t kSectorCount = 64;
+#ifdef DEBUG
+static const constexpr uint32_t kBootloaderSectors = 36;  // 0-35
+#else
 static const constexpr uint32_t kBootloaderSectors = 12;  // 0-11
+#endif
 static const constexpr uint32_t kImageSectorStart = kBootloaderSectors;  // 12-64
 static const constexpr uint32_t kPageSize = 64;
 static const constexpr uint32_t kPageCount = kSectorSize/kPageSize;
@@ -18,36 +18,6 @@ static_assert(kPageCount == 16);
 
 
 __attribute__((__section__(".m_validate"))) volatile const uint32_t image_signature __attribute__((aligned(4))) = 0xdeadbeef;
-static UartControllerType* shell_uart = nullptr;
-
-
-void SetShellUart(UartControllerType* uart) {
-  shell_uart = uart;
-}
-
-UartControllerType* GetShellUart(void) {
-  return shell_uart;
-}
-
-static int console_putc(char c) {
-  shell_uart->write(static_cast<uint8_t>(c));
-  return 0;
-}
-
-#if 0
-char console_getc(void) {
-  uint8_t ch = shell_uart->read();
-  return static_cast<uint8_t>(ch);
-}
-#endif
-
-void SetupShell(void) {
-  assert(GetShellUart() != nullptr);
-  sShellImpl shell_impl = {
-    .send_char = console_putc,
-  };
-  shell_boot(&shell_impl);
-}
 
 __attribute__((naked, noreturn)) static void BootJumpASM(uint32_t SP, uint32_t RH) {
   __asm("MSR      MSP,r0");
@@ -83,10 +53,11 @@ void ExecuteImage(void) {
 }
 
 bool ImageIsValid(void) {
-  const uint32_t crc = 0;
   Crc crc_controller;
   crc_controller.Setup();
-  const constexpr uint32_t image_length = (kSectorCount - kBootloaderSectors) * kSectorSize;
-  crc_controller.WriteData(reinterpret_cast<const uint8_t* const>(kImageSectorStart * kSectorSize + sizeof(image_signature)), image_length);
+  const constexpr uint32_t image_length = (kSectorCount - kBootloaderSectors) * kSectorSize - sizeof(image_signature);
+  uint8_t* p_image = reinterpret_cast<uint8_t* const>(kImageSectorStart * kSectorSize + sizeof(image_signature));
+  crc_controller.WriteData(p_image, image_length);
+  assert(image_signature == *reinterpret_cast<volatile uint32_t*>(kSectorCount*kSectorSize - sizeof(uint32_t)));
   return image_signature == crc_controller.Get32BitResult();
 }

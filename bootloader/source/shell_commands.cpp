@@ -8,11 +8,50 @@
 #include <cstdio>
 #include <cstring>
 #include "SystemConstants.h"
+#include "HardwareLibrarian.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #endif
+
+
 namespace Shell {
+
+/*
+ * Global to connect the shell send character function
+ * */
+
+static UartControllerType* shell_uart = nullptr;
+
+
+void SetShellUart(UartControllerType* uart) {
+  shell_uart = uart;
+}
+
+UartControllerType* GetShellUart(void) {
+  return shell_uart;
+}
+
+static int console_putc(char c) {
+  shell_uart->write(static_cast<uint8_t>(c));
+  return 0;
+}
+
+#if 0
+char console_getc(void) {
+  uint8_t ch = shell_uart->read();
+  return static_cast<uint8_t>(ch);
+}
+#endif
+
+void SetupShell(void) {
+  assert(GetShellUart() != nullptr);
+  sShellImpl shell_impl = {
+    .send_char = console_putc,
+  };
+  shell_boot(&shell_impl);
+}
+
 inline void RaiseError(const char* str, const uint32_t code) {
   prv_echo_str("> FAIL,");
   prv_echo_str(str);

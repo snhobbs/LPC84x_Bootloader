@@ -44,6 +44,8 @@ target_link_options(
 target_compile_options(
     ${TargetName}
     PUBLIC
+    $<$<COMPILE_LANGUAGE:ASM,C,C++>:-fno-builtin>       # Uses libc instead of compiler routines for somethings
+    #$<$<CONFIG:RELEASE>:-s> # strip all symbols
     $<$<CONFIG:Release>:-Os>
     $<$<CONFIG:Debug>:-Og>
     $<$<CONFIG:Debug>:-g3>
@@ -96,6 +98,19 @@ set(DeviceLibrarySource "${LPC84x_DIR}/Chip")
 set(VendorCodeBaseDirectory ${DeviceLibrarySource}/VendorSdks/SDK_2.7.0_LPC845)
 GetVendorDirectories("${VendorCodeBaseDirectory}")# Sets VendorDirectories
 GetVendorSources("${VendorCodeBaseDirectory}") # Sets VendorSources
+
+list(APPEND VendorSources "../LPC845_Bootloader/src/cpp_config.cpp")
+#list(APPEND VendorSources "../LPC845_Bootloader/src/startup_lpc845.cpp")
+if(ROMDIVIDE)
+  add_definitions(
+    -D__USE_ROMDIVIDE
+  )
+  list(APPEND VendorSources "${DeviceLibrarySource}/aeabi_romdiv_patch.s")
+  list(APPEND VendorSources "${DeviceLibrarySource}/ROMDivide.cpp")
+  message("\n\nUsing ROM Divide\n==================================================\n\n")
+endif()
+
+
 target_include_directories(${TargetName} PUBLIC "${LPC84x_DIR}/Chip")
 target_sources(${TargetName} PUBLIC ${VendorSources})
 list(APPEND static_analysis_excludes ${LPC84x_DIR})

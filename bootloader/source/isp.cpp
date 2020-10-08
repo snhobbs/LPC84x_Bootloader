@@ -5,14 +5,16 @@
 #include "SystemConstants.h"
 #include <array>
 //  FIXME disable interrupts with each of the read/writes to flash
+extern uint32_t SystemCoreClock;
 namespace Isp {
 
+static const constexpr uint32_t kBootloaderStart = 0x00;
 class FlashController {
-  const uint32_t kRamBufferLength = 1024; // FIXME
-  std::array<uint32_t, kBufferSize>{};
-  uint32_t systemCoreClock = 0;
+  static const constexpr uint32_t kRamBufferLength = 1024; // FIXME
+  std::array<uint32_t, kRamBufferLength> buffer{};
   bool lock_ = true;
   
+ public:
   void OpenFlashInteraction(void) {
     __disable_irq();
   }
@@ -29,11 +31,12 @@ class FlashController {
     lock_ = true;
   }
 
+#if 0
   /* RAM address must be within the buffer, destination must not be in bootloader space */
   uint32_t CopyRAMToFlash(const uint32_t flash_address, const uint32_t ram_address, const uint32_t length) {
     if (AddressLegal(flash_address) && AddressLegal(flash_address+length) &&
-      length <= kRamBufferLength) {
-      const status_t status IAP_CopyRamToFlash(dstAddr, uint32_t *srcAddr, uint32_t numOfBytes, uint32_t systemCoreClock);
+      length <= buffer.size()) {
+      const status_t status IAP_CopyRamToFlash(dstAddr, uint32_t *srcAddr, uint32_t numOfBytes, uint32_t SystemCoreClock);
       return TranslateStatus(status);
     }
     return Isp::INVALID_ADDR;
@@ -47,26 +50,31 @@ class FlashController {
     }
     return Isp::INVALID_ADDR;
   }
+#endif
 };
 
 static FlashController flash;
 /* RAM address must be within the buffer, destination must not be in bootloader space */
 uint32_t CopyRAMToFlash(const uint32_t flash_address, const uint32_t ram_address, const uint32_t length) {
+#if 0
   if (AddressLegal(flash_address) && AddressLegal(flash_address+length) &&
     length <= kRamBufferLength) {
-    const status_t status IAP_CopyRamToFlash(dstAddr, uint32_t *srcAddr, uint32_t numOfBytes, uint32_t systemCoreClock);
+    const status_t status IAP_CopyRamToFlash(dstAddr, uint32_t *srcAddr, uint32_t numOfBytes, uint32_t SystemCoreClock);
     return TranslateStatus(status);
   }
-  return Isp::INVALID_ADDR;
+#endif
+  return Isp::ADDR_ERROR;
 }
 
 //  FIXME need to store data in buffer
 uint32_t WriteToRam(const uint32_t start, const uint32_t length) {
+#if 0
   if (AddressLegal(start) && AddressLegal(start+length)) {
     const status_t status IAP_CopyRamToFlash(start, end);
     return TranslateStatus(status);
   }
-  return Isp::INVALID_ADDR;
+#endif
+  return Isp::ADDR_ERROR;
 }
 
 uint32_t unlock(void) {
@@ -88,7 +96,7 @@ uint32_t ReadMemory<std::array<uint8_t, Shell::kMaximumReadWriteLength>>(const u
 /* Only allow sectors that are not the bootloader */
 uint32_t PrepSectorsForWrite(const uint32_t start, const uint32_t end) {
   if (SectorLegal(start) && SectorLegal(end)) {
-    const status_t status IAP_PrepareSectorForWrite(start, end);
+    const status_t status = IAP_PrepareSectorForWrite(start, end);
     return TranslateStatus(status);
   }
   return Isp::INVALID_SECTOR_OR_INVALID_PAGE;
@@ -107,7 +115,7 @@ uint32_t Go(const uint32_t address, const char mode) {
 //  FIXME needs to read core clock
 uint32_t EraseSector(const uint32_t start, const uint32_t end) {
   if (SectorLegal(start) && SectorLegal(end)) {
-    const status_t status = IAP_EraseSector(start, end, systemCoreClock);
+    const status_t status = IAP_EraseSector(start, end, SystemCoreClock);
     return TranslateStatus(status);
   }
   return Isp::INVALID_SECTOR_OR_INVALID_PAGE;
@@ -117,7 +125,7 @@ uint32_t EraseSector(const uint32_t start, const uint32_t end) {
 //  FIXME needs to read core clock
 uint32_t ErasePages(const uint32_t start, const uint32_t end) {
   if (PageLegal(start) && PageLegal(end)) {
-    const status_t status = IAP_ErasePage(start, end, systemCoreClock);
+    const status_t status = IAP_ErasePage(start, end, SystemCoreClock);
     return TranslateStatus(status);
   }
   return Isp::INVALID_SECTOR_OR_INVALID_PAGE;
@@ -137,17 +145,16 @@ uint32_t ReadBootCodeVersion(uint32_t* major, uint32_t* minor) {
 }
 
 uint32_t MemoryLocationsEqual(const uint32_t address1, const uint32_t address2, const uint32_t length) {
-  uint32_t* pstart = reinterpret_cast<uint32_t*>(address1);
   uint32_t* pend = reinterpret_cast<uint32_t*>(address2);
   if (AddressLegal(address1) && AddressLegal(address1 + length) &&
       AddressLegal(address2) && AddressLegal(address2 + length)) {
-    const status_t status = IAP_Compare(pstart, pend, length);
+    const status_t status = IAP_Compare(address1, pend, length);
     return TranslateStatus(status);
   }
   return Isp::ADDR_ERROR;
 }
 
-uint32_t ReadUID(std::array<uint32_t, IspController::kSerialNumberWordCount>* uuid) {
+uint32_t ReadUID(std::array<uint32_t, IapController::kSerialNumberWordCount>* uuid) {
   return IapController::ReadSerialNumber(uuid);
 }
 
@@ -168,4 +175,5 @@ uint32_t ReadFlashSig(const uint32_t start, const uint32_t end, const uint32_t w
     return TranslateStatus(status);
   }
   return Isp::ADDR_ERROR;
+}
 }
