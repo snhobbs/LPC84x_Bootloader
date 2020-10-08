@@ -81,32 +81,11 @@ bool ImageIsValid(void) {
   return image_signature == crc_controller.Get32BitResult();
 }
 
-#if 0
-  /* RAM address must be within the buffer, destination must not be in bootloader space */
-  uint32_t CopyRAMToFlash(const uint32_t flash_address, const uint32_t ram_address, const uint32_t length) {
-    if (AddressLegal(flash_address) && AddressLegal(flash_address+length) &&
-      length <= buffer.size()) {
-      const status_t status IAP_CopyRamToFlash(dstAddr, uint32_t *srcAddr, uint32_t numOfBytes, uint32_t SystemCoreClock);
-      return TranslateStatus(status);
-    }
-    return Isp::INVALID_ADDR;
-  }
-
-  //  FIXME need to store data in buffer
-  uint32_t WriteToRam(const uint32_t start, const uint32_t length) {
-    if (AddressLegal(start) && AddressLegal(start+length)) {
-      const status_t status IAP_CopyRamToFlash(start, end);
-      return TranslateStatus(status);
-    }
-    return Isp::INVALID_ADDR;
-  }
-#endif
-
-
 /* RAM address must be within the buffer, destination must not be in bootloader space */
 uint32_t CopyRAMToFlash(const uint32_t flash_address, const uint32_t ram_address, const uint32_t length) {
   if (FlashAddressRangeLegal(flash_address, length) && RamRangeLegal(ram_address, length)) {
-    const status_t status = IAP_CopyRamToFlash(flash_address, reinterpret_cast<uint32_t*>(&flash.buffer_[ram_address]), length, GetSystemCoreClock());
+    auto ram_ptr = reinterpret_cast<uint32_t*>(&flash.buffer_[ram_address]);
+    const status_t status = IAP_CopyRamToFlash(flash_address, ram_ptr, length, GetSystemCoreClock());
     return TranslateStatus(status);
   }
   return Isp::ADDR_ERROR;
@@ -114,9 +93,9 @@ uint32_t CopyRAMToFlash(const uint32_t flash_address, const uint32_t ram_address
 
 uint32_t WriteToRam(const uint32_t start, const uint32_t length, uint8_t* arg) {
   if (RamAddressLegal(start) && RamAddressLegal(start+length)) {
-	for (std::size_t i = 0; i < length; i++) {
-	  flash.buffer_[start+i] = arg[i];
-	}
+    for (std::size_t i = 0; i < length; i++) {
+      flash.buffer_[start+i] = arg[i];
+    }
     return Isp::CMD_SUCCESS;
   }
   return Isp::ADDR_ERROR;
@@ -137,7 +116,7 @@ uint32_t ReadMemory(const uint32_t start, const uint32_t length, uint8_t* buff) 
     for (std::size_t i = 0; i < length; i++) {
       buff[i] = flash.buffer_[start+i];
     }
-	return Isp::CMD_SUCCESS;
+    return Isp::CMD_SUCCESS;
   }
   return Isp::ADDR_ERROR;
 }
@@ -205,10 +184,12 @@ uint32_t ReadUID(std::array<uint32_t, IapController::kSerialNumberWordCount>* uu
   return IapController::ReadSerialNumber(uuid);
 }
 
-//  FIXME needs CRC driver
 uint32_t ReadCRC(const uint32_t start, const uint32_t length, uint32_t* crc) {
+  Crc::Setup();
+  Crc::Reset();
   if (FlashAddressRangeLegal(start, length)) {
-    *crc = 0xDEADBEEF;
+    Crc::WriteData(reinterpret_cast<uint8_t*>(start));
+    *crc = Crc::Get32BitResult();
     return Isp::CMD_SUCCESS;
   } else {
     return Isp::ADDR_ERROR;
@@ -223,4 +204,4 @@ uint32_t ReadFlashSig(const uint32_t start, const uint32_t end, const uint32_t w
   }
   return Isp::ADDR_ERROR;
 }
-}
+}  //  namespace Isp
