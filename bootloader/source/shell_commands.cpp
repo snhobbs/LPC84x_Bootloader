@@ -1,19 +1,22 @@
 #include "isp_error_codes.h"
 #include "shell/shell.h"
-#include "isp.h"
 
 #include <limits>
 #include <cstdint>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include "SerialController.h"
+#include "Bootloader.h"
 #include "SystemConstants.h"
+#include "SystemManager.h"
 #include "HardwareLibrarian.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 #endif
 
+SystemManager& GetSystemManager(void);
 
 namespace Shell {
 
@@ -21,28 +24,18 @@ namespace Shell {
  * Global to connect the shell send character function
  * */
 
-static UartControllerType* shell_uart = nullptr;
-
-
+static SerialController serial{};
 void SetShellUart(UartControllerType* uart) {
-  shell_uart = uart;
+  serial.uart_ = uart;
 }
-
-UartControllerType* GetShellUart(void) {
-  return shell_uart;
-}
+UartControllerType* GetShellUart(void) { return serial.uart_; }
+//  int console_putc(char c);
+//  char console_getc(void);
 
 static int console_putc(char c) {
-  shell_uart->write(static_cast<uint8_t>(c));
+  serial.uart_->write(static_cast<uint8_t>(c));
   return 0;
 }
-
-#if 0
-char console_getc(void) {
-  uint8_t ch = shell_uart->read();
-  return static_cast<uint8_t>(ch);
-}
-#endif
 
 void SetupShell(void) {
   assert(GetShellUart() != nullptr);
@@ -51,6 +44,7 @@ void SetupShell(void) {
   };
   shell_boot(&shell_impl);
 }
+
 
 inline void RaiseError(const char* str, const uint32_t code) {
   prv_echo_str("> FAIL,");
@@ -112,7 +106,10 @@ int cmd_unlock(int argc, char *argv[]) {
   } else {
     shell_put_line("> FAIL,Unlock code incorrect,2");
   }
+  return 0;
 }
+
+//  FIXME hardweare state change
 int cmd_set_baudrate(int argc, char *argv[]) {
   //  Baud Depends of FAIM config, stopbit is 1 or 2
   if (!CheckArgLength(argc, 1, 2)) {
@@ -140,16 +137,14 @@ int cmd_echo(int argc, char *argv[]) {
 }
 
 int cmd_write_to_ram(int argc, char *argv[]) {
-  if (!CheckArgLength(argc, 2, 2)) {
+  if (!CheckArgLength(argc, 3, 3)) {
     return -1;
   }
   //  when transfer is complete send OK\c\r
   const uint32_t start = std::atol(argv[1]);
   const uint32_t length = std::atol(argv[2]);
-  const uint32_t response_code = Isp::WriteToRam(start, length);
+  const uint32_t response_code = Isp::WriteToRam(start, length, reinterpret_cast<uint8_t*>(argv[3]));
   SendResponseCode(response_code);
-  //  FIXME accept data being streamed in
-  std::array<uint8_t, Shell::kMaximumReadWriteLength> buffer{'\0'};
   shell_put_line("OK");
   return 0;
 }
