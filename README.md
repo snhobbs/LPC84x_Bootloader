@@ -9,3 +9,5 @@ firmware-shell
 LPC84x
 BareMetalCommon
 EmbeddedCmake
+
+Needs to have the binary compiled with the appropriate offset, other than that no special linking is necessary
