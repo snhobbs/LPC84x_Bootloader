@@ -7,27 +7,42 @@
 #include "HardwareLibrarian.h"
 #include "shell/shell.h"
 
+int main(void);
+
+extern uint32_t __top_Flash;
 namespace Isp {
 void ExecuteImage(void);
 bool ImageIsValid(void);
 
 const constexpr uint32_t kSectorSize = 1024;
 const constexpr uint32_t kSectorCount = 64;
+
+#if 0
 #ifdef DEBUG
 const constexpr uint32_t kBootloaderSectors = 36;  // 0-35
 #else
 const constexpr uint32_t kBootloaderSectors = 12;  // 0-11
 #endif
-//const constexpr uint32_t kImageSectorStart = kBootloaderSectors;  // 12-64
-const constexpr uint32_t kImageSectorStart = 0;  // 12-64
+const constexpr uint32_t kImageSectorStart = kBootloaderSectors;  // 12-64
+//const constexpr uint32_t kImageSectorStart = 0;  // 12-64
 const constexpr uint32_t kVectorTableOffset = 0;//0x800;
-const constexpr uint32_t kExecutionOffset = 0x1d00;//0x1cfc;//0x488;//0x800;
-const constexpr uint32_t kImageStart = kImageSectorStart*kSectorSize;
+#if 1
+#else
+const uint32_t kImageStart = 0x00;
+const uint32_t kExecutionOffset = kImageStart + reinterpret_cast<uint32_t>(&main);//0x1cfc;//0x488;//0x800;
+#endif
+#endif
+const constexpr uint32_t kBootloaderSectors = 36;
+const constexpr uint32_t kImageSectorStart = kBootloaderSectors;
+
+const uint32_t kImageStart = kImageSectorStart * kSectorSize;//__top_Flash;
+const constexpr uint32_t kVectorTableOffset = 0;//0x800;
+const constexpr uint32_t kExecutionOffset = 0x4;
 
 const constexpr uint32_t kPageSize = 64;
 const constexpr uint32_t kPageCount = kSectorSize/kPageSize;
 //const constexpr uint32_t kApplicationStackPointer = 0x10003FE0;  //
-const constexpr uint32_t kApplicationStackPointer = 0x10003fd0;
+//const constexpr uint32_t kApplicationStackPointer = 0x10003fd0;
 static_assert(kPageCount == 16);
 
 const constexpr uint32_t kWriteSize = 1024;
@@ -88,8 +103,6 @@ inline uint32_t TranslateStatus(uint32_t status) {
   return status;
 }
 
-#pragma GCC optimize("O0")
-#pragma GCC push_options
 class Bootloader {
  public:
   enum class State {
@@ -143,5 +156,4 @@ class Bootloader {
     }
   }
 };
-#pragma GCC pop_options
 }

@@ -8,7 +8,6 @@ extern uint32_t SystemCoreClock;
 //  FIXME disable interrupts with each of the read/writes to flash
 extern uint32_t _vStackTop;
 extern uint32_t _image_start;
-int main(void);
 namespace Isp {
 static FlashController flash;
 
@@ -44,11 +43,16 @@ static void BootJump(const uint32_t image_start, const uint32_t stack_pointer) {
   //  Load the vector table address of the user application into SCB->VTOR register. Make sure the address meets the alignment requirements
   //  Check for a shadow pointer to the VTOR
   //
-  __DSB();                                                          /* Ensure all outstanding memory accesses included
-                                                                       buffered write are completed before reset */
+  using ApplicationIspResetFP = void (*)(void);
+  auto jump_to_app = reinterpret_cast<ApplicationIspResetFP>(*reinterpret_cast<volatile uint32_t*>(image_start + kExecutionOffset));
+
+  __DSB();                                                          /* Ensure all outstanding memory accesses included                                                                       buffered write are completed before reset */
   SCB->VTOR = image_start + kVectorTableOffset;
   __DSB();                                                          /* Ensure completion of memory access */
-  BootJumpASM(stack_pointer, reinterpret_cast<uint32_t>(&main));
+  //BootJumpASM(stack_pointer, image_start + kExecutionOffset);
+  /* Change the main stack pointer. */
+  __set_MSP(*reinterpret_cast<volatile uint32_t*>(image_start));
+  jump_to_app();
 }
 
 constexpr inline bool FlashSectorLegal(uint32_t sector) {
@@ -83,8 +87,8 @@ uint8_t* GetRamPtr(const uint32_t address) {
 
 void ExecuteImage(void) {
   // const uint32_t start_address = _image_start;
-  const constexpr uint32_t start_address = kImageStart;
-  const uint32_t stack_pointer = kApplicationStackPointer;
+  const uint32_t start_address = kImageStart;
+  const uint32_t stack_pointer = *reinterpret_cast<uint32_t*>(start_address);
   //const uint32_t stack_pointer = _vStackTop;
 
   BootJump(start_address, stack_pointer);
@@ -95,7 +99,7 @@ bool ImageIsValid(void) {
   crc_controller.SetupCrc32();
   const constexpr uint32_t image_length = (kSectorCount - kBootloaderSectors) * kSectorSize - sizeof(image_signature);
   flash.OpenFlashInteraction();
-  uint8_t* p_image = reinterpret_cast<uint8_t* const>(kImageSectorStart * kSectorSize);
+  uint8_t* p_image = reinterpret_cast<uint8_t* const>(kImageStart);
   crc_controller.WriteData(p_image, image_length);
   assert(image_signature == *reinterpret_cast<volatile uint32_t*>(kSectorCount*kSectorSize - sizeof(uint32_t)));
   flash.CloseFlashInteraction();
