@@ -158,8 +158,6 @@ int cmd_write_to_ram(int argc, char *argv[]) {
   return 0;
 }
 
-#pragma GCC optimize("O0")
-#pragma GCC push_options
 int cmd_read_memory(int argc, char *argv[]) {
   if (!CheckArgLength(argc, 2, 2)) {
     return -1;
@@ -176,7 +174,6 @@ int cmd_read_memory(int argc, char *argv[]) {
   SendResponseCode(response_code);
   return 0;
 }
-#pragma GCC pop_options
 
 int cmd_prep_sectors(int argc, char *argv[]) {
   if (!CheckArgLength(argc, 2, 2)) {
