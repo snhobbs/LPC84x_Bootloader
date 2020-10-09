@@ -10,6 +10,7 @@
 
 #include "HardwareLibrarian.h"
 #include "shell/shell.h"
+
 //  extern const uint32_t image_signature;
 //
 namespace Shell {
