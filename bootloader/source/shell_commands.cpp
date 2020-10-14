@@ -48,16 +48,16 @@ void SetupShell(void) {
 inline void RaiseError(const char* str, const uint32_t code) {
   prv_echo_str("> FAIL,");
   prv_echo_str(str);
-  char buffer[std::numeric_limits<uint32_t>::digits10 + 1]{"\0"};
-  sprintf(buffer, ",%lu", code);
-  shell_put_line(buffer);
+  std::array<char, std::numeric_limits<uint32_t>::digits10 + 2> buffer{"\0"};
+  snprintf(buffer.data(), buffer.size(), ",%lu", code);
+  shell_put_line(buffer.data());
 }
 
 inline void SendResponseCode(const uint32_t code) {
   //  response sent as new line at the end of all arguments
-  char buffer[std::numeric_limits<uint32_t>::digits10 + 1]{"\0"};
-  sprintf(buffer, "%lu", code);
-  shell_put_line(buffer);
+  std::array<char, std::numeric_limits<uint32_t>::digits10 + 2> buffer{"\0"};
+  snprintf(buffer.data(), buffer.size(), "%lu", code);
+  shell_put_line(buffer.data());
 }
 
 static inline bool CheckArgLength(const int argc, const int length_low, const int length_high) {
@@ -137,7 +137,6 @@ int cmd_echo(int argc, char *argv[]) {
   return 0;
 }
 
-//  FIXME needs a data slurp mode
 int cmd_write_to_ram(int argc, char *argv[]) {
   if (!CheckArgLength(argc, 2, 2)) {
     return -1;
@@ -254,10 +253,10 @@ int cmd_read_part_id(int argc, char *argv[]) {
   uint32_t part_id = 0;
   const uint32_t response_code = Isp::ReadPartID(&part_id);
   SendResponseCode(response_code);
-  char buffer[(std::numeric_limits<uint32_t>::digits10 + 3)]{"\0"};
-  //sprintf(buffer, "0x%x", part_id);
-  sprintf(buffer, "%lu", part_id);
-  shell_put_line(buffer);
+  std::array<char, std::numeric_limits<uint32_t>::digits10 + 2> buffer{"\0"};
+  //snprintf(buffer.data(), buffer.size(), "0x%x", part_id);
+  snprintf(buffer.data(), buffer.size(), "%lu", part_id);
+  shell_put_line(buffer.data());
   return 0;
 }
 
@@ -269,12 +268,12 @@ int cmd_read_bootcode_version(int argc, char *argv[]) {
   uint32_t minor = 0;
   const uint32_t response_code = Isp::ReadBootCodeVersion(&major, &minor);
   SendResponseCode(response_code);
-  char buffer[(std::numeric_limits<uint32_t>::digits10 + 3)]{"\0"};
-  sprintf(buffer, "%lu", major);
-  shell_put_line(buffer);
+  std::array<char, std::numeric_limits<uint32_t>::digits10 + 2> buffer{"\0"};
+  snprintf(buffer.data(), buffer.size(), "%lu", major);
+  shell_put_line(buffer.data());
 
-  sprintf(buffer, "%lu", minor);
-  shell_put_line(buffer);
+  snprintf(buffer.data(), buffer.size(), "%lu", minor);
+  shell_put_line(buffer.data());
   return 0;
 }
 
@@ -300,9 +299,9 @@ int cmd_read_uid(int argc, char *argv[]) {
   SendResponseCode(response_code);
 
   for (uint32_t pt : uuid) {
-    char buffer[(std::numeric_limits<uint32_t>::digits10 + 3)]{"\0"};
-    sprintf(buffer, "0x%08lx", pt);
-    shell_put_line(buffer);
+    std::array<char, std::numeric_limits<uint32_t>::digits10 + 2> buffer{"\0"};
+    snprintf(buffer.data(), buffer.size(), "0x%08lx", pt);
+    shell_put_line(buffer.data());
   }
   return 0;
 }
@@ -318,9 +317,9 @@ int cmd_read_CRC(int argc, char *argv[]) {
   SendResponseCode(response_code);
 
   if (response_code == Isp::CMD_SUCCESS) {
-    char buffer[(std::numeric_limits<uint32_t>::digits10 + 1)]{"\0"};
-    sprintf(buffer, "%lu", crc);
-    shell_put_line(buffer);
+    std::array<char, std::numeric_limits<uint32_t>::digits10 + 2> buffer{"\0"};
+    snprintf(buffer.data(), buffer.size(), "%lu", crc);
+    shell_put_line(buffer.data());
   }
   return 0;
 }
@@ -340,14 +339,14 @@ int cmd_read_flash_signature(int argc, char *argv[]) {
 
   const uint32_t start = std::atol(argv[1]);
   const uint32_t end = std::atol(argv[2]);
-  uint32_t signature[4]{};
-  const uint32_t response_code = Isp::ReadFlashSig(start, end, wait_states, mode, signature);
+  std::array<uint32_t, 4> signature{0};
+  const uint32_t response_code = Isp::ReadFlashSig(start, end, wait_states, mode, signature.data());
   SendResponseCode(response_code);
 
   if (response_code == Isp::CMD_SUCCESS) {
-    char buffer[(std::numeric_limits<uint32_t>::digits10*sizeof(signature) + 3)]{"\0"};
-    sprintf(buffer, "%lu\n%lu\n%lu\n%lu", signature[0], signature[1], signature[2], signature[3]);
-    shell_put_line(buffer);
+    std::array<char, (std::numeric_limits<uint32_t>::digits10 + 2) * signature.size() + 2> buffer{"\0"};
+    snprintf(buffer.data(), buffer.size(), "%lu\n%lu\n%lu\n%lu", signature[0], signature[1], signature[2], signature[3]);
+    shell_put_line(buffer.data());
   }
   return 0;
 }
@@ -366,10 +365,19 @@ int cmd_enter_isp(int argc, char *argv[]) {
 }
 
 int cmd_check_valid(int argc, char *argv[]) {
-  if (Isp::ImageIsValid()) {
-    SendResponseCode(Isp::CMD_SUCCESS);
+  uint32_t crc = 0;
+  const uint32_t response = Isp::CalculateImageSignature(&crc);
+  if (response == Isp::CMD_SUCCESS) {
+    if (Isp::GetImageSignature() == crc) {
+      SendResponseCode(Isp::CMD_SUCCESS);
+    } else {
+      std::array<char, (std::numeric_limits<uint32_t>::digits10 + 1)*2 + 2> buffer{"\0"};
+      snprintf(buffer.data(), buffer.size(), "%lu\t%lu", Isp::GetImageSignature(), crc);
+      shell_put_line(buffer.data());
+      SendResponseCode(Isp::USER_CODE_CHECKSUM);
+    }
   } else {
-    SendResponseCode(Isp::USER_CODE_CHECKSUM);
+    SendResponseCode(response);
   }
   return 0;
 }
@@ -401,7 +409,7 @@ static const sShellCommand s_shell_commands[] = {
   {"N", cli::cmd_read_uid, "Reads chip unique identifier. Arguments: None"},
   {"S", cli::cmd_read_CRC, "Calculate CRC of the given block of memory. Arguments: start (uint32_t), data length in bytes (uint32_t)"},
   {"Z", cli::cmd_read_flash_signature, "Read flash signature. Arguments: start (uint32_t), end (uint32_t), wait_states (uint32_t optional), mode (uint32_t, optional)"},
-  {"CV", cli::cmd_check_valid, "Check image validity"},
+  {"CV", cli::cmd_check_valid, "Check image validity, if fails return image signature \t crc"},
   {"isp", cli::cmd_enter_isp, "Enter ISP mode. Argument: code (uint32_t, send \"unlock\")"},
   {"err", cli::cmd_printerror, "Print name of error code. Arguments: code (uint32_t)"},
   {"help", shell_help_handler, "Lists all commands"},
