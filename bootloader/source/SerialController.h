@@ -68,7 +68,7 @@ class SerialController {
 	}
   }
 
-  SerialController(UartControllerType* uart) : uart_{uart} {}
+  explicit SerialController(UartControllerType* uart) : uart_{uart} {}
   SerialController(void){}
 };
 
