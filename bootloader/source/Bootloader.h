@@ -12,6 +12,8 @@ int main(void);
 extern uint32_t __top_Flash;
 namespace Isp {
 void ExecuteImage(void);
+uint32_t GetImageSignature(void);
+uint32_t CalculateImageSignature(uint32_t*);
 bool ImageIsValid(void);
 
 const constexpr uint32_t kSectorSize = 1024;
@@ -26,13 +28,10 @@ const constexpr uint32_t kBootloaderSectors = 12;  // 0-11
 const constexpr uint32_t kImageSectorStart = kBootloaderSectors;  // 12-64
 //const constexpr uint32_t kImageSectorStart = 0;  // 12-64
 const constexpr uint32_t kVectorTableOffset = 0;//0x800;
-#if 1
-#else
-const uint32_t kImageStart = 0x00;
-const uint32_t kExecutionOffset = kImageStart + reinterpret_cast<uint32_t>(&main);//0x1cfc;//0x488;//0x800;
 #endif
-#endif
-const constexpr uint32_t kBootloaderSectors = 36;
+
+//const constexpr uint32_t kBootloaderSectors = 36;
+const constexpr uint32_t kBootloaderSectors = 14;
 const constexpr uint32_t kImageSectorStart = kBootloaderSectors;
 
 const uint32_t kImageStart = kImageSectorStart * kSectorSize;//__top_Flash;
@@ -45,7 +44,7 @@ const constexpr uint32_t kPageCount = kSectorSize/kPageSize;
 //const constexpr uint32_t kApplicationStackPointer = 0x10003fd0;
 static_assert(kPageCount == 16);
 
-const constexpr uint32_t kWriteSize = 1024;
+const constexpr uint32_t kWriteSize = kSectorSize;
 const constexpr uint32_t kBootloaderStart = 0x00;
 const constexpr uint32_t kRamStart = 0x10000000;
 const constexpr uint32_t kRamOffset = 0x800;

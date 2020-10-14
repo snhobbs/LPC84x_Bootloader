@@ -68,7 +68,12 @@ constexpr inline bool FlashAddressLegal(std::size_t address) {
 }
 
 constexpr inline bool FlashAddressRangeLegal(std::size_t start, std::size_t length) {
-  return FlashAddressLegal(start) && FlashAddressLegal(start + length - 1) && length <= Isp::kSectorSize;
+  return FlashAddressLegal(start) && FlashAddressLegal(start + length - 1) && length <= Isp::kSectorSize * Isp::kSectorCount;
+}
+
+constexpr inline bool FlashAddressRangeValid(std::size_t start, std::size_t length) {
+  const uint32_t kFlashSize = Isp::kSectorCount * Isp::kSectorSize;
+  return (start < kFlashSize) && (length <= kFlashSize) && ((start + length) <= kFlashSize);
 }
 
 constexpr inline bool RamAddressLegal(std::size_t address) {
@@ -94,16 +99,23 @@ void ExecuteImage(void) {
   BootJump(start_address, stack_pointer);
 }
 
-bool ImageIsValid(void) {
-  Crc crc_controller;
-  crc_controller.SetupCrc32();
-  const constexpr uint32_t image_length = (kSectorCount - kBootloaderSectors) * kSectorSize - sizeof(image_signature);
-  flash.OpenFlashInteraction();
-  uint8_t* p_image = reinterpret_cast<uint8_t* const>(kImageStart);
-  crc_controller.WriteData(p_image, image_length);
+uint32_t GetImageSignature(void) {
   assert(image_signature == *reinterpret_cast<volatile uint32_t*>(kSectorCount*kSectorSize - sizeof(uint32_t)));
-  flash.CloseFlashInteraction();
-  return image_signature == crc_controller.Get32BitResult();
+  return image_signature;
+}
+
+uint32_t CalculateImageSignature(uint32_t* crc) {
+  const constexpr uint32_t image_length = (kSectorCount - kBootloaderSectors) * kSectorSize - sizeof(image_signature);
+  const constexpr uint32_t image_start = (kBootloaderSectors) * kSectorSize;
+  const uint32_t response = ReadCRC(image_start, image_length, crc);
+  return response;
+}
+
+bool ImageIsValid(void) {
+  uint32_t crc = 0;
+  const uint32_t response = CalculateImageSignature(&crc);
+  assert(response == Isp::CMD_SUCCESS);
+  return GetImageSignature() == crc;
 }
 
 /* RAM address must be within the buffer, destination must not be in bootloader space */
@@ -246,11 +258,10 @@ uint32_t ReadUID(std::array<uint32_t, IapController::kSerialNumberWordCount>* uu
   return IapController::ReadSerialNumber(uuid);
 }
 
-// FIXME this isnt the same as the ISP values for the same
 uint32_t ReadCRC(const uint32_t start, const uint32_t length, uint32_t* crc) {
-	Crc::SetupCrc32();
+  Crc::SetupCrc32();
 
-  if (FlashAddressRangeLegal(start, length)) {
+  if (FlashAddressRangeValid(start, length)) {
     Crc::WriteData(reinterpret_cast<uint8_t*>(start), length);
     *crc = Crc::Get32BitResult();
     return Isp::CMD_SUCCESS;
