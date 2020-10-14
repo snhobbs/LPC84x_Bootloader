@@ -14,10 +14,9 @@ message(STATUS "${PROJECT_NAME}")
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR})
 set(ProjectDirectory ${CMAKE_SOURCE_DIR}/../bootloader)
+set(LibraryDirectory ${ProjectDirectory})
 set(ProjectSourceDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/src)
 set(ProjectIncludeDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/include)
-#set(ProjectSourceDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/src ${ProjectDirectory}/Bootloader/nxpisp/source)
-#set(ProjectIncludeDirectories ${ProjectDirectory}/source ${ProjectDirectory}/firmware-shell/shell/include ${ProjectDirectory}/Bootloader/nxpisp/include)
 string(TIMESTAMP build_timestamp UTC)
 configure_file(${CMAKE_SOURCE_DIR}/Config.h.in ${ProjectDirectory}/source/Config.h) # add header where version is passed to code
 
@@ -39,6 +38,11 @@ target_link_options(
   $<$<CONFIG:RELEASE>:-Os> #LTO
   -flto                          # Link time optimizations
   -ffat-lto-objects              # Link time optimization in object files
+)
+
+add_definitions(
+  -DSHELL_PROMPT=""
+  -DSHELL_RX_BUFFER_SIZE=2048
 )
 
 target_compile_options(
@@ -87,12 +91,12 @@ set(static_analysis_excludes ${source_excludes})
 #------------------------------------------------------------
 # Include Libraries
 #------------------------------------------------------------
-find_package(CppUtilities 1.0.1 REQUIRED)
+find_package(CppUtilities 1.0.1 REQUIRED PATHS ${LibraryDirectory})
 target_include_directories(${TargetName} PUBLIC "${CppUtilities_DIR}/include")
 list(APPEND static_analysis_excludes ${CppUtilities_DIR})
 
 set(ChipName LPC845)
-find_package(LPC84x 1.0.1 REQUIRED)
+find_package(LPC84x 1.0.1 REQUIRED PATHS ${LibraryDirectory})
 include(${LPC84x_DIR}/cmake/Chip.cmake)
 set(DeviceLibrarySource "${LPC84x_DIR}/Chip")
 set(VendorCodeBaseDirectory ${DeviceLibrarySource}/VendorSdks/SDK_2.7.0_LPC845)
@@ -101,6 +105,7 @@ GetVendorSources("${VendorCodeBaseDirectory}") # Sets VendorSources
 
 list(APPEND VendorSources "../LPC845_Bootloader/src/cpp_config.cpp")
 #list(APPEND VendorSources "../LPC845_Bootloader/src/startup_lpc845.cpp")
+option(ROMDIVIDE "Use ROM Integer divide" ON)
 if(ROMDIVIDE)
   add_definitions(
     -D__USE_ROMDIVIDE
@@ -115,11 +120,11 @@ target_include_directories(${TargetName} PUBLIC "${LPC84x_DIR}/Chip")
 target_sources(${TargetName} PUBLIC ${VendorSources})
 list(APPEND static_analysis_excludes ${LPC84x_DIR})
 
-find_package(HardwareInterfaces 1.0.1 REQUIRED)
+find_package(HardwareInterfaces 1.0.1 REQUIRED PATHS ${LibraryDirectory})
 target_include_directories(${TargetName} PUBLIC "${HardwareInterfaces_DIR}/include")
 list(APPEND static_analysis_excludes ${HardwareInterfaces_DIR})
 
-find_package(EmbeddedCMake 1.0.1 REQUIRED)
+find_package(EmbeddedCMake 1.0.1 REQUIRED PATHS ${LibraryDirectory})
 include(${EmbeddedCMake_DIR}/source/ProjectBase.cmake)
 
 function(PinGenerator directory)
