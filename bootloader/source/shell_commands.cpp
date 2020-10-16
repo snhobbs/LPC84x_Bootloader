@@ -390,6 +390,7 @@ int cmd_check_valid(int argc, char *argv[]) {
 
 }  //  namespace cli
 
+#ifdef DEBUG
 static const sShellCommand s_shell_commands[] = {
   //{"?", cli::cmd_syncronize, "Required for compatability with NXP ISP loader. Arguments: None"},
   {"U", cli::cmd_unlock, "Unlock device, enables flash write, erase, & go. Arguments: code (uint32_t)"},
@@ -415,6 +416,30 @@ static const sShellCommand s_shell_commands[] = {
   {"help", shell_help_handler, "Lists all commands"},
   {"?", shell_help_handler, "Same as help"},
 };
+#else
+static const sShellCommand s_shell_commands[] = {
+  {"U", cli::cmd_unlock, ""},
+  {"B", cli::cmd_set_baudrate, ""},
+  {"A", cli::cmd_echo, ""},
+  {"W", cli::cmd_write_to_ram, ""},
+  {"R", cli::cmd_read_memory, ""},
+  {"P", cli::cmd_prep_sectors, ""},
+  {"C", cli::cmd_copy_ram_to_flash, ""},
+  {"G", cli::cmd_go, ""},
+  {"E", cli::cmd_erase_sector, ""},
+  {"X", cli::cmd_erase_pages, ""},
+  {"I", cli::cmd_check_sectors_blank, ""},
+  {"J", cli::cmd_read_part_id, ""},
+  {"K", cli::cmd_read_bootcode_version, ""},
+  {"M", cli::cmd_memory_locations_equal, ""},
+  {"N", cli::cmd_read_uid, ""},
+  {"S", cli::cmd_read_CRC, ""},
+  {"Z", cli::cmd_read_flash_signature, ""},
+  {"CV", cli::cmd_check_valid, ""},
+  {"isp", cli::cmd_enter_isp, ""},
+  //{"err", cli::cmd_printerror, "Print name of error code. Arguments: code (uint32_t)"},
+};
+#endif
 }
 const sShellCommand *const g_shell_commands = Shell::s_shell_commands;
 const size_t g_num_shell_commands = ARRAY_SIZE(Shell::s_shell_commands);

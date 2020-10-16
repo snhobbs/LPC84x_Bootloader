@@ -34,6 +34,8 @@
 									<listOptionValue builtIn="false" value="__MCUXPRESSO"/>
 									<listOptionValue builtIn="false" value="__USE_CMSIS"/>
 									<listOptionValue builtIn="false" value=""/>
+									<listOptionValue builtIn="false" value="NO_SHELL_PROMPT"/>
+									<listOptionValue builtIn="false" value="SHELL_RX_BUFFER_SIZE=2048"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.1923581643" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.optimization.flags.1027169276" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-fno-common" valueType="string"/>
@@ -68,6 +70,8 @@
 									<listOptionValue builtIn="false" value="__USE_CMSIS"/>
 									<listOptionValue builtIn="false" value="__MCUXPRESSO"/>
 									<listOptionValue builtIn="false" value=""/>
+									<listOptionValue builtIn="false" value="NO_SHELL_PROMPT"/>
+									<listOptionValue builtIn="false" value="SHELL_RX_BUFFER_SIZE=2048"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.2095060048" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.optimization.flags.1034280733" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-fno-common" valueType="string"/>
@@ -181,6 +185,8 @@
 									<listOptionValue builtIn="false" value="__MCUXPRESSO"/>
 									<listOptionValue builtIn="false" value="__USE_CMSIS"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
+									<listOptionValue builtIn="false" value="NO_SHELL_PROMPT"/>
+									<listOptionValue builtIn="false" value="SHELL_RX_BUFFER_SIZE=2048"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.840901825" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.optimization.flags.1479539796" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-fno-common -Os" valueType="string"/>
@@ -218,6 +224,8 @@
 									<listOptionValue builtIn="false" value="__USE_CMSIS"/>
 									<listOptionValue builtIn="false" value="__MCUXPRESSO"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
+									<listOptionValue builtIn="false" value="NO_SHELL_PROMPT"/>
+									<listOptionValue builtIn="false" value="SHELL_RX_BUFFER_SIZE=2048"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.841958684" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.optimization.flags.1215381367" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-fno-common" valueType="string"/>
@@ -337,6 +345,8 @@
 									<listOptionValue builtIn="false" value="__USE_CMSIS"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value=""/>
+									<listOptionValue builtIn="false" value="NO_SHELL_PROMPT"/>
+									<listOptionValue builtIn="false" value="SHELL_RX_BUFFER_SIZE=2048"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.849381453" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.optimization.flags.1201773399" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-fno-common" valueType="string"/>
@@ -372,6 +382,8 @@
 									<listOptionValue builtIn="false" value="__MCUXPRESSO"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value=""/>
+									<listOptionValue builtIn="false" value="NO_SHELL_PROMPT"/>
+									<listOptionValue builtIn="false" value="SHELL_RX_BUFFER_SIZE=2048"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.112652911" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
 								<option id="gnu.c.compiler.option.optimization.flags.1802845354" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-fno-common" valueType="string"/>
@@ -478,7 +490,7 @@
 &lt;memory id="Periph" is_volatile="true" type="Peripheral"/&gt;
 &lt;memoryInstance derived_from="Flash" edited="true" id="MFlash64" location="0x0" size="0x3800"/&gt;
 &lt;memoryInstance derived_from="Flash" edited="true" id="m_validate" location="0xfffc" size="0x4"/&gt;
-&lt;memoryInstance derived_from="RAM" id="RamLoc16" location="0x10000000" size="0x4000"/&gt;
+&lt;memoryInstance derived_from="RAM" edited="true" id="RamLoc16" location="0x10000000" size="0x4000"/&gt;
 &lt;/chip&gt;
 &lt;processor&gt;
 &lt;name gcc_name="cortex-m0"&gt;Cortex-M0&lt;/name&gt;

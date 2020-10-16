@@ -19,20 +19,13 @@ bool ImageIsValid(void);
 const constexpr uint32_t kSectorSize = 1024;
 const constexpr uint32_t kSectorCount = 64;
 
-#if 0
 #ifdef DEBUG
 const constexpr uint32_t kBootloaderSectors = 36;  // 0-35
 #else
-const constexpr uint32_t kBootloaderSectors = 12;  // 0-11
+const constexpr uint32_t kBootloaderSectors = 14;  // 0-11
 #endif
 const constexpr uint32_t kImageSectorStart = kBootloaderSectors;  // 12-64
 //const constexpr uint32_t kImageSectorStart = 0;  // 12-64
-const constexpr uint32_t kVectorTableOffset = 0;//0x800;
-#endif
-
-//const constexpr uint32_t kBootloaderSectors = 36;
-const constexpr uint32_t kBootloaderSectors = 14;
-const constexpr uint32_t kImageSectorStart = kBootloaderSectors;
 
 const uint32_t kImageStart = kImageSectorStart * kSectorSize;//__top_Flash;
 const constexpr uint32_t kVectorTableOffset = 0;//0x800;
